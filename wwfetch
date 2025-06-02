@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+
+import platform
+import subprocess
+import os
+
+def get_os_name():
+    with open('/etc/os-release') as f:
+        for line in f:
+            if line.startswith('PRETTY_NAME'):
+                return line.split('=')[1].strip().strip('"')
+    return platform.system()
+
+def get_kernel():
+    return platform.release()
+
+def get_de_wm():
+    # Try to detect DE
+    de = os.getenv('XDG_CURRENT_DESKTOP') or os.getenv('DESKTOP_SESSION') or os.getenv('GDMSESSION')
+    if de:
+        return de
+    
+    # Try to detect WM
+    try:
+        wm = subprocess.check_output(['wmctrl', '-m'], stderr=subprocess.DEVNULL).decode()
+        for line in wm.split('\n'):
+            if line.startswith('Name:'):
+                return line.split(':')[1].strip()
+    except:
+        pass
+    
+    return 'Unknown'
+
+def get_cpu():
+    try:
+        with open('/proc/cpuinfo') as f:
+            for line in f:
+                if line.startswith('model name'):
+                    return line.split(':')[1].strip()
+    except:
+        pass
+    return platform.processor()
+
+def get_gpu():
+    try:
+        lspci = subprocess.check_output(['lspci', '-vnnn'], stderr=subprocess.DEVNULL).decode()
+        for line in lspci.split('\n'):
+            if 'VGA' in line or '3D' in line or 'Display' in line:
+                return line.split(':')[2].strip()
+    except:
+        pass
+    return 'Unknown'
+
+def get_bios():
+    try:
+        with open('/sys/class/dmi/id/bios_version') as f:
+            bios_version = f.read().strip()
+        with open('/sys/class/dmi/id/bios_date') as f:
+            bios_date = f.read().strip()
+        return f"{bios_version} ({bios_date})"
+    except:
+        return 'Unknown'
+
+def main():
+    # Green ASCII art cat
+    green_color = '\033[32m'
+    reset_color = '\033[0m'
+    
+    ascii_cat = green_color + r"""
+  \    /\
+  )   ( ')
+ (   /  )
+  \(__)|
+""" + reset_color
+
+    print(ascii_cat)
+    print(f"OS Name: {get_os_name()}")
+    print(f"OS Kernel: {get_kernel()}")
+    print(f"DE/WM: {get_de_wm()}")
+    print(f"CPU: {get_cpu()}")
+    print(f"GPU: {get_gpu()}")
+    print(f"BIOS: {get_bios()}")
+
+if __name__ == "__main__":
+    main()
