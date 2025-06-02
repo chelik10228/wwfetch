@@ -79,7 +79,7 @@ def main():
     print(f"DE/WM: {get_de_wm()}")
     print(f"CPU: {get_cpu()}")
     print(f"GPU: {get_gpu()}")
-    print(f"BIOS: {get_bios()}")
+    print(f"BIOS/UEFI: {get_bios()}")
 
 if __name__ == "__main__":
     main()
