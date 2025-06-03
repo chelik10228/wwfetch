@@ -3,6 +3,7 @@
 import platform
 import subprocess
 import os
+import pwd
 
 def get_os_name():
     with open('/etc/os-release') as f:
@@ -61,6 +62,14 @@ def get_bios():
     except:
         return 'Unknown'
 
+def get_shell():
+    try:
+        # Get current user's shell
+        shell = pwd.getpwuid(os.getuid()).pw_shell
+        return os.path.basename(shell)
+    except:
+        return os.path.basename(os.getenv('SHELL', 'Unknown'))
+
 def main():
     # Green ASCII art cat
     green_color = '\033[32m'
@@ -77,9 +86,10 @@ def main():
     print(f"OS Name: {get_os_name()}")
     print(f"OS Kernel: {get_kernel()}")
     print(f"DE/WM: {get_de_wm()}")
+    print(f"Shell: {get_shell()}")
     print(f"CPU: {get_cpu()}")
     print(f"GPU: {get_gpu()}")
-    print(f"BIOS/UEFI: {get_bios()}")
+    print(f"BIOS: {get_bios()}")
 
 if __name__ == "__main__":
     main()
